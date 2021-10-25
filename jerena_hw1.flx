@@ -1,0 +1,63 @@
+%{
+    int noLines = 1;
+%}
+
+%%
+"\n"                      noLines++;
+
+"Mail"                    printf("%d tMAIL \n", noLines);
+"schedule"                printf("%d tSCHEDULE \n", noLines);
+"send"                    printf("%d tSEND \n", noLines);
+"from"                    printf("%d tFROM \n", noLines);
+"end Mail"                printf("%d tENDMAIL \n", noLines);
+"end schedule"            printf("%d tENDSCH \n", noLines);
+"to"                      printf("%d tTO \n", noLines);
+"set"                     printf("%d tSET \n", noLines);
+
+
+","                      printf("%d tCOMMA \n", noLines);
+"("                      printf("%d tLPR \n", noLines);                      
+"["                      printf("%d tLBR \n", noLines);
+"@"                      printf("%d tAT \n", noLines);
+":"                      printf("%d tCOLON \n", noLines);
+")"                      printf("%d tRPR \n", noLines);
+"]"                      printf("%d tRBR \n", noLines);
+
+([a-zA-Z0-9_\-]+(\.[a-zA-Z0-9_\-]+)*@[a-zA-Z0-9]+(\-)*[a-zA-Z0-9\-]*[a-zA-Z0-9\-]+(\.)[a-zA-Z0-9]+(\-)*[a-zA-Z0-9\-]*[a-zA-Z0-9\-]+)|([a-zA-Z0-9_\-]+(\.[a-zA-Z0-9_\-]+)*@[a-zA-Z0-9]+(\-)*[a-zA-Z0-9\-]*[a-zA-Z0-9\-]+(\.)[a-zA-Z0-9]+(\-)*[a-zA-Z0-9\-]*[a-zA-Z0-9\-]+(\.)[a-zA-Z0-9]+(\-)*[a-zA-Z0-9\-]*[a-zA-Z0-9\-]+)   {printf("%d tADDRESS %s%s%s \n", noLines, "(", yytext, ")");}
+
+[0-9]{2}\/[0-9]{2}\/[0-9]{4}                printf("%d tDATE %s%s%s \n", noLines,  "(", yytext, ")");
+[0-9]{2}:[0-9]{2}                           printf("%d tTIME %s%s%s \n", noLines,  "(", yytext, ")");
+[a-zA-Z_][a-zA-Z0-9_]*                      printf("%d tIDENT %s%s%s \n", noLines,  "(", yytext, ")");
+\"(\\.|[^\\"])*\"                           { printf("%d tSTRING ", noLines);
+
+char *result = (char *)malloc(sizeof(char)*yyleng);
+const char n = '\n';
+int i=0;
+for (; i<yyleng; ){
+    if (i==0){
+        result[0]='(';
+    }
+    
+    else if (i==yyleng-1){
+        result[yyleng-1]=')';
+    }
+    else{
+        result[i]=yytext[i];
+    }
+    if(yytext[i] == n){
+        noLines++;
+    }
+    i++;
+}
+printf("%s \n",result);        
+
+}
+[ \t\r]+ 
+. printf("%d ILLEGAL CHARACTER  %s%s%s \n", noLines, "(", yytext, ")");
+
+%%
+
+int main(){
+    yylex();
+    return(0);
+}
